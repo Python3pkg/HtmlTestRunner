@@ -69,7 +69,7 @@ class HTMLTestRunner(TextTestRunner):
             infos = []
             if not result.wasSuccessful():
                 self.stream.writeln("FAILED")
-                failed, errors = map(len, (result.failures, result.errors))
+                failed, errors = list(map(len, (result.failures, result.errors)))
                 if failed:
                     infos.append("Failures={0}".format(failed))
                 if errors:

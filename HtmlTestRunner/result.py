@@ -6,6 +6,7 @@ import jinja2
 
 from unittest import TestResult, _TextTestResult
 from unittest.result import failfast
+import collections
 
 template_dir = os.path.join(os.path.dirname(__file__), 'template')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
@@ -29,7 +30,7 @@ def testcase_name(test_method):
 class _TestInfo(object):
     """" Keeps information about the execution of a test method. """
 
-    (SUCCESS, FAILURE, ERROR, SKIP) = range(1, 5)
+    (SUCCESS, FAILURE, ERROR, SKIP) = list(range(1, 5))
 
     def __init__(self, test_result, test_method, outcome=SUCCESS,
                  err=None, subTest=None):
@@ -128,7 +129,7 @@ class _HtmlTestResult(_TextTestResult):
         _TextTestResult.stopTest(self, test)
         self.stop_time = time.time()
 
-        if self.callback and callable(self.callback):
+        if self.callback and isinstance(self.callback, collections.Callable):
             self.callback()
             self.callback = None
 
@@ -212,10 +213,10 @@ class _HtmlTestResult(_TextTestResult):
     def get_report_attributes(self, tests, start_time, elapsed_time):
         """ Setup the header info for the report. """
 
-        failures = len(list(filter(lambda e: e.outcome == e.FAILURE, tests)))
-        errors = len(list(filter(lambda e: e.outcome == e.ERROR, tests)))
-        skips = len(list(filter(lambda e: e.outcome == e.SKIP, tests)))
-        success = len(list(filter(lambda e: e.outcome == e.SUCCESS, tests)))
+        failures = len(list([e for e in tests if e.outcome == e.FAILURE]))
+        errors = len(list([e for e in tests if e.outcome == e.ERROR]))
+        skips = len(list([e for e in tests if e.outcome == e.SKIP]))
+        success = len(list([e for e in tests if e.outcome == e.SUCCESS]))
         status = []
 
         if success:
@@ -296,7 +297,7 @@ class _HtmlTestResult(_TextTestResult):
         """ Generate report for all given runned test object. """
         all_results = self._get_info_by_testcase()
 
-        for suite_name, all_tests in all_results.items():
+        for suite_name, all_tests in list(all_results.items()):
 
             if testRunner.outsuffix:
                 suite_name = "Test_{}_{}.html".format(suite_name,
